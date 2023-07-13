@@ -32,7 +32,6 @@ namespace Zenject.SpaceFighter
                 Die();
             }
         }
-
         void Die()
         {
             _player.IsDead = true;
