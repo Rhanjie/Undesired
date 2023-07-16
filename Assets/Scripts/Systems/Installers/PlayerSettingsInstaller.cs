@@ -7,18 +7,14 @@ using Zenject;
 
 namespace Systems.Installers
 {
-    public class PlayerInstaller : MonoInstaller<PlayerInstaller>
+    [CreateAssetMenu(fileName = "PlayerInstaller", menuName = "Installers/PlayerInstaller")]
+    public class PlayerSettingsInstaller : ScriptableObjectInstaller<PlayerSettingsInstaller>
     {
         [SerializeField] private CharacterMovement.Settings characterMovementSettings;
         
         public override void InstallBindings()
         {
-            Container.Bind<IMovement>()
-                .To<CharacterMovement>()
-                .WithArguments(characterMovementSettings)
-                .WhenInjectedInto<Player>();
-
-            Container.Bind<Player>().AsSingle();
+            Container.Bind<CharacterMovement.Settings>().FromInstance(characterMovementSettings).AsSingle();
         }
     }
 }

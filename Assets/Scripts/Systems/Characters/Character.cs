@@ -12,8 +12,6 @@ namespace Systems.Characters
         public virtual void Construct(IMovement movement)
         {
             Movement = movement;
-            
-            Debug.Log($"Dependency '{movement.GetType()}' injected to '{GetType()}'");
         }
     }
 }
