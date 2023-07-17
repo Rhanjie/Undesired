@@ -21,13 +21,38 @@ namespace Systems.Characters.Behaviours
             _references = references;
             _settings = settings;
         }
-        
+
         public void FixedTick()
         {
-            var horizontalVelocity = _horizontal * _settings.speed * Time.fixedDeltaTime;
-            var verticalVelocity = _references.dynamicComponent.velocity.y;
+            CalculateMovement();
+            CalculateFriction();
+        }
 
-            _references.dynamicComponent.velocity = new Vector2(horizontalVelocity, verticalVelocity);
+        private void CalculateMovement()
+        {
+            var targetSpeed = _horizontal * _settings.speed;
+            var speedDifference = targetSpeed - _references.rigidbody.velocityX;
+
+            var accelerationRate = (Mathf.Abs(targetSpeed) > 0.01f)
+                ? _settings.acceleration
+                : _settings.decceleration;
+
+            var direction = Mathf.Sign(speedDifference);
+            var force = Mathf.Abs(speedDifference) * accelerationRate;
+            var movement = Mathf.Pow(force, _settings.velocityPower) * direction;
+            
+            _references.rigidbody.AddForce(movement * Vector2.right);
+        }
+
+        private void CalculateFriction()
+        {
+            if (!IsGrounded() || Mathf.Abs(_horizontal) >= 0.01f)
+                return;
+
+            var amount = Mathf.Min(Mathf.Abs(_references.rigidbody.velocityX), Mathf.Abs(_settings.frictionAmount));
+            amount *= Mathf.Sign(_references.rigidbody.velocityX);
+            
+            _references.rigidbody.AddForce(Vector2.right * -amount, ForceMode2D.Impulse);
         }
 
         public void PerformMove(Vector2 delta)
@@ -43,13 +68,13 @@ namespace Systems.Characters.Behaviours
             if (!IsGrounded())
                 return;
             
-            var horizontalVelocity = _references.dynamicComponent.velocity.x;
-            _references.dynamicComponent.velocity = new Vector2(horizontalVelocity, _settings.jumpingPower);
+            var horizontalVelocity = _references.rigidbody.velocity.x;
+            _references.rigidbody.velocity = new Vector2(horizontalVelocity, _settings.jumpingPower);
         }
         
         public bool IsGrounded()
         {
-            return Physics2D.OverlapCircle(_references.feetPoint.position, 0.4f, _walkableLayerMask);
+            return Physics2D.OverlapCircle(_references.feetPoint.position, 0.2f, _walkableLayerMask);
         }
 
         private void Flip()
@@ -66,15 +91,21 @@ namespace Systems.Characters.Behaviours
         public class References
         {
             public Transform transformHandler;
-            public Rigidbody2D dynamicComponent;
+            public Rigidbody2D rigidbody;
             public Transform feetPoint;
         }
 
         [Serializable]
         public class Settings
         {
-            public float speed = 200f;
+            public float speed = 20f;
             public float jumpingPower = 2f;
+            
+            public float acceleration = 13;
+            public float decceleration = 16;
+
+            public float velocityPower = 0.96f;
+            public float frictionAmount = 2.5f;
         }
     }
 }

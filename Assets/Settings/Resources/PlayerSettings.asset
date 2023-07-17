@@ -13,5 +13,9 @@ MonoBehaviour:
   m_Name: PlayerSettings
   m_EditorClassIdentifier: 
   characterMovementSettings:
-    speed: 200
+    speed: 20
     jumpingPower: 10
+    acceleration: 13
+    decceleration: 16
+    velocityPower: 0.96
+    frictionAmount: 10
