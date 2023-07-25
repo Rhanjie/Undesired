@@ -7,6 +7,9 @@ namespace Systems.Characters.Behaviours
 {
     public class CharacterMovement : IMovement, IFixedTickable
     {
+        public Vector2 Position => _references.transformHandler.position;
+        public bool IsGrounded => Physics2D.OverlapCircle(_references.feetPoint.position, 0.2f, _walkableLayerMask);
+        
         private readonly References _references;
         private readonly Settings _settings;
 
@@ -46,7 +49,7 @@ namespace Systems.Characters.Behaviours
 
         private void CalculateFriction()
         {
-            if (!IsGrounded() || Mathf.Abs(_horizontal) >= 0.01f)
+            if (!IsGrounded || Mathf.Abs(_horizontal) >= 0.01f)
                 return;
 
             var amount = Mathf.Min(Mathf.Abs(_references.rigidbody.velocityX), Mathf.Abs(_settings.frictionAmount));
@@ -65,18 +68,14 @@ namespace Systems.Characters.Behaviours
 
         public void PerformJump()
         {
-            if (!IsGrounded())
+            if (!IsGrounded)
                 return;
             
             var horizontalVelocity = _references.rigidbody.velocity.x;
             _references.rigidbody.velocity = new Vector2(horizontalVelocity, _settings.jumpingPower);
         }
         
-        public bool IsGrounded()
-        {
-            return Physics2D.OverlapCircle(_references.feetPoint.position, 0.2f, _walkableLayerMask);
-        }
-
+        
         private void Flip()
         {
             _isFacingRight = !_isFacingRight;

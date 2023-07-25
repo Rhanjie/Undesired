@@ -1,8 +1,5 @@
-﻿using Systems.Characters;
-using Systems.Characters.Behaviours;
-using Systems.Core.Characters.Behaviours;
+﻿using Systems.Characters.Behaviours;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Zenject;
 
 namespace Systems.Installers
