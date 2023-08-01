@@ -8,13 +8,16 @@
         "GUID:0acc523941302664db1f4e527237feb3",
         "GUID:26d9f603b6470004691c23cdc97f5bd0"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
         "nunit.framework.dll",
-        "Zenject-usage.dll"
+        "Zenject-usage.dll",
+        "Moq.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

@@ -1,9 +1,7 @@
 using System.Collections;
+using Moq;
 using NUnit.Framework;
 using Systems.Characters;
-using Systems.Characters.Behaviours;
-using Systems.Core.Characters.Behaviours;
-using Systems.Installers;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
