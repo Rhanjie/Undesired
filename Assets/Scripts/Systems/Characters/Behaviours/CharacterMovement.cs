@@ -9,12 +9,12 @@ namespace Systems.Characters.Behaviours
     {
         public Vector2 Position => _references.transformHandler.position;
         public bool IsGrounded => Physics2D.OverlapCircle(_references.feetPoint.position, 0.2f, _walkableLayerMask);
+        public bool IsFacingRight { get; private set; } = true;
         
         private readonly References _references;
         private readonly Settings _settings;
 
         private float _horizontal;
-        private bool _isFacingRight = true;
 
         private readonly int _walkableLayerMask = LayerMask.GetMask("Walkable");
 
@@ -62,7 +62,7 @@ namespace Systems.Characters.Behaviours
         {
             _horizontal = delta.x;
             
-            if (_isFacingRight && _horizontal < 0f || !_isFacingRight && _horizontal > 0f)
+            if (IsFacingRight && _horizontal < 0f || !IsFacingRight && _horizontal > 0f)
                 Flip();
         }
 
@@ -78,7 +78,7 @@ namespace Systems.Characters.Behaviours
         
         private void Flip()
         {
-            _isFacingRight = !_isFacingRight;
+            IsFacingRight = !IsFacingRight;
 
             var localScale = _references.transformHandler.localScale;
             localScale.x *= -1f;
