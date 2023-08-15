@@ -18,6 +18,10 @@ namespace Tests.Playmode.Characters
         private Character _player;
         
         private IMovement _movement;
+        
+        private const float SmallDuration = 0.2f;
+        private const float MediumDuration = 2f;
+        private const float LongDuration = 5f;
 
         [SetUp]
         public void CommonInstall()
@@ -25,8 +29,9 @@ namespace Tests.Playmode.Characters
             var path = AssetDatabase.GUIDToAssetPath(PlayerPrefabGuid);
             var character = AssetDatabase.LoadAssetAtPath<Character>(path);
 
-            InitGround();
-            
+            InitBox(new Vector2(0, -2f), new Vector2 (8, 1));
+            InitBox(new Vector2(4, 0f), new Vector2(1, 3));
+
             PreInstall();
 
             Container.Bind<Character>().FromNewComponentOnNewPrefab(character).AsSingle();
@@ -36,7 +41,7 @@ namespace Tests.Playmode.Characters
             _movement = _player.Movement;
         }
 
-        private void InitGround()
+        private void InitBox(Vector2 position, Vector2 scale)
         {
             var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
             
@@ -44,48 +49,71 @@ namespace Tests.Playmode.Characters
             ground.AddComponent<BoxCollider2D>();
             
             ground.layer = LayerMask.NameToLayer("Walkable");
-            ground.transform.position = new Vector3(0, -2f, 0);
-            ground.transform.localScale = new Vector3 (2, 1, 2);
+            ground.transform.position = new Vector3(position.x, position.y, 0f);
+            ground.transform.localScale = new Vector3(scale.x, scale.y, 1f);;
         }
         
         [UnityTest]
-        public IEnumerator Move_Character_In_Right_Direction()
+        public IEnumerator Move_Small_Distance_In_Right_Direction()
         {
             var delta = Vector2.right;
             _movement.PerformMove(delta);
 
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(SmallDuration);
         
             Assert.Greater(_movement.Position.x, 0);
             Assert.AreEqual(_movement.IsFacingRight, true);
         }
+
+        [UnityTest]
+        public IEnumerator Move_Long_Distance_In_Right_Direction_And_Block_On_Obstacle()
+        {
+            var delta = Vector2.right;
+            _movement.PerformMove(delta);
+
+            yield return new WaitForSeconds(MediumDuration);
+        
+            Assert.Greater(_movement.Position.x, 0);
+            Assert.LessOrEqual(_movement.Position.x, 3f);
+        }
         
         [UnityTest]
-        public IEnumerator Move_Character_In_Left_Direction()
+        public IEnumerator Move_Small_Distance_In_Left_Direction()
         {
             var delta = Vector2.left;
             _movement.PerformMove(delta);
 
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(SmallDuration);
         
             Assert.Less(_movement.Position.x, 0);
             Assert.AreEqual(_movement.IsFacingRight, false);
         }
         
         [UnityTest]
-        public IEnumerator Grounded_Character_After_Jump_Is_Not_Grounded()
+        public IEnumerator Move_Long_Distance_In_Left_Direction()
         {
-            yield return new WaitForSeconds(0.3f);
+            var delta = Vector2.left;
+            _movement.PerformMove(delta);
+
+            yield return new WaitForSeconds(MediumDuration);
+        
+            Assert.LessOrEqual(_movement.Position.x, -3f);
+        }
+
+        [UnityTest]
+        public IEnumerator Jump_To_Top_Without_Obstacles()
+        {
+            yield return new WaitForSeconds(SmallDuration);
             
             Assert.AreEqual(_movement.IsGrounded, true);
             
             _movement.PerformJump();
         
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(SmallDuration);
         
             Assert.AreEqual(_movement.IsGrounded, false);
             
-            yield return new WaitForSeconds(4);
+            yield return new WaitForSeconds(LongDuration);
             
             Assert.AreEqual(_movement.IsGrounded, true);
         }
