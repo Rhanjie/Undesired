@@ -14,7 +14,7 @@ namespace Systems.Characters.Behaviours
         private readonly References _references;
         private readonly Settings _settings;
 
-        private float _horizontal;
+        private float _horizontalMove;
 
         private readonly int _walkableLayerMask = LayerMask.GetMask("Walkable");
 
@@ -33,7 +33,7 @@ namespace Systems.Characters.Behaviours
 
         private void CalculateMovement()
         {
-            var targetSpeed = _horizontal * _settings.speed;
+            var targetSpeed = _horizontalMove * _settings.speed;
             var speedDifference = targetSpeed - _references.rigidbody.velocityX;
 
             var accelerationRate = (Mathf.Abs(targetSpeed) > 0.01f)
@@ -49,7 +49,7 @@ namespace Systems.Characters.Behaviours
 
         private void CalculateFriction()
         {
-            if (!IsGrounded || Mathf.Abs(_horizontal) >= 0.01f)
+            if (!IsGrounded || Mathf.Abs(_horizontalMove) >= 0.01f)
                 return;
 
             var amount = Mathf.Min(Mathf.Abs(_references.rigidbody.velocityX), Mathf.Abs(_settings.frictionAmount));
@@ -60,9 +60,9 @@ namespace Systems.Characters.Behaviours
 
         public void PerformMove(Vector2 delta)
         {
-            _horizontal = delta.x;
+            _horizontalMove = delta.x;
             
-            if (IsFacingRight && _horizontal < 0f || !IsFacingRight && _horizontal > 0f)
+            if (ShouldBeFlipped())
                 Flip();
         }
 
@@ -75,7 +75,6 @@ namespace Systems.Characters.Behaviours
             _references.rigidbody.velocity = new Vector2(horizontalVelocity, _settings.jumpingPower);
         }
         
-        
         private void Flip()
         {
             IsFacingRight = !IsFacingRight;
@@ -84,6 +83,11 @@ namespace Systems.Characters.Behaviours
             localScale.x *= -1f;
 
             _references.transformHandler.localScale = localScale;
+        }
+        
+        private bool ShouldBeFlipped()
+        {
+            return IsFacingRight && _horizontalMove < 0f || !IsFacingRight && _horizontalMove > 0f;
         }
 
         [Serializable]
